@@ -129,7 +129,7 @@ export default function Products() {
 
   return (
     <section id="products" className="section bg-light-gradient">
-      <div className="section-title-wrapper reveal">
+      <div className="section-title-wrapper">
         <span className="section-subtitle font-heading">Produk Unggulan</span>
         <h2>Koleksi Kebutuhan Hewan</h2>
         <p className="section-description">Hanya produk berkualitas tinggi dari brand terpercaya untuk menjamin kesehatan, kenyamanan, dan kebahagiaan hewan peliharaan Anda.</p>
@@ -137,8 +137,8 @@ export default function Products() {
 
       {/* Products Grid */}
       <div className="grid grid-4 product-grid">
-        {products.map((product, idx) => (
-          <div key={product.id} className={`premium-card product-card reveal reveal-delay-${(idx % 4) + 1}`}>
+        {products.map((product) => (
+          <div key={product.id} className="premium-card product-card">
             {/* Category Tag */}
             <span className="product-tag">{product.category}</span>
 
@@ -190,18 +190,7 @@ export default function Products() {
       {/* Interactive Toast Notification */}
       {toastMessage && (
         <div className="purchase-toast">
-          <div className="toast-content">
-            <span className="toast-icon-wrapper">
-              <svg viewBox="0 0 24 24" fill="var(--primary)" width="18" height="18" className="toast-paw-svg">
-                <circle cx="6" cy="10" r="1.5" />
-                <circle cx="10" cy="6" r="2" />
-                <circle cx="15" cy="6" r="2" />
-                <circle cx="19" cy="10" r="1.5" />
-                <path d="M12 11c-2.5 0-3.5 1.5-3.5 3s1.5 3 3.5 3s3.5-1.5 3.5-3s-1-3-3.5-3z" />
-              </svg>
-            </span>
-            <span className="toast-text-msg">{toastMessage.replace("🎉 ", "")}</span>
-          </div>
+          <div className="toast-content">{toastMessage}</div>
         </div>
       )}
 
@@ -356,62 +345,28 @@ export default function Products() {
           position: fixed;
           bottom: 24px;
           right: 24px;
-          background: linear-gradient(135deg, rgba(30, 19, 16, 0.93) 0%, rgba(18, 9, 6, 0.96) 100%);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          color: #fbeee3;
-          border: 1px solid rgba(255, 122, 69, 0.25);
-          padding: 0.85rem 1.4rem;
-          border-radius: 18px;
-          box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35), 0 0 20px rgba(255, 122, 69, 0.1);
+          background-color: var(--text-h);
+          color: var(--bg);
+          border: 1px solid var(--border);
+          padding: 1rem 1.75rem;
+          border-radius: 16px;
+          box-shadow: var(--shadow-lg);
           z-index: 1100;
-          animation: slideInUp 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+          animation: slideInUp 0.3s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
         }
 
         @keyframes slideInUp {
-          from { 
-            transform: translateY(40px) scale(0.95); 
-            opacity: 0; 
-          }
-          to { 
-            transform: translateY(0) scale(1); 
-            opacity: 1; 
-          }
+          from { transform: translateY(100px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
         }
 
         .toast-content {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-        }
-
-        .toast-icon-wrapper {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: rgba(255, 122, 69, 0.1);
-          padding: 0.35rem;
-          border-radius: 50%;
-          border: 1px solid rgba(255, 122, 69, 0.2);
-          flex-shrink: 0;
-        }
-
-        .toast-paw-svg {
-          animation: pawWiggle 1.5s ease-in-out infinite alternate;
-        }
-
-        @keyframes pawWiggle {
-          0% { transform: rotate(-10deg) scale(1); }
-          100% { transform: rotate(10deg) scale(1.15); }
-        }
-
-        .toast-text-msg {
           font-family: var(--font-heading);
           font-weight: 600;
-          font-size: 0.92rem;
-          color: #fbeee3;
-          line-height: 1.3;
-          text-align: left;
+          font-size: 0.95rem;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
         }
       `}</style>
     </section>
