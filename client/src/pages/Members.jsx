@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 const MEMBER_TIERS = [
   {
@@ -32,11 +32,36 @@ export default function Members() {
   
   const [submitted, setSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [popup, setPopup] = useState(null);
+  const [activeErrorField, setActiveErrorField] = useState(null);
+
+  const ownerNameInputRef = useRef(null);
+  const petNameInputRef = useRef(null);
+  const phoneInputRef = useRef(null);
+
+  const showPopup = (type, title, message, buttonText = "Mengerti") => {
+    setPopup({ type, title, message, buttonText });
+  };
+
+  const closePopup = () => {
+    setPopup(null);
+    if (activeErrorField === 'phone') {
+      setTimeout(() => phoneInputRef.current?.focus(), 50);
+    } else if (activeErrorField === 'owner_name') {
+      setTimeout(() => ownerNameInputRef.current?.focus(), 50);
+    } else if (activeErrorField === 'pet_name') {
+      setTimeout(() => petNameInputRef.current?.focus(), 50);
+    }
+  };
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (activeErrorField === name) {
+      setActiveErrorField(null);
+    }
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
   };
 
@@ -45,19 +70,47 @@ export default function Members() {
     
     const { owner_name, pet_name, phone } = formData;
     if (!owner_name.trim() || !pet_name.trim() || !phone.trim()) {
-      setErrorMsg('⚠️ Harap isi semua kolom formulir dengan benar.');
+      showPopup('error', 'Data Tidak Lengkap', 'Harap isi semua kolom formulir dengan benar.');
       return;
     }
 
-    if (phone.length < 9) {
-      setErrorMsg('⚠️ Nomor WhatsApp/Telepon harus minimal 9 angka.');
+    if (/[^a-zA-Z\s]/.test(owner_name)) {
+      showPopup(
+        'error',
+        'Nama Pemilik Tidak Valid',
+        'Nama pemilik hanya boleh berisi huruf (A-Z, a-z) dan spasi. Angka atau simbol tidak diperbolehkan.',
+        'Perbaiki Nama'
+      );
+      setActiveErrorField('owner_name');
+      return;
+    }
+
+    if (/[^a-zA-Z\s]/.test(pet_name)) {
+      showPopup(
+        'error',
+        'Nama Hewan Tidak Valid',
+        'Nama hewan hanya boleh berisi huruf (A-Z, a-z) dan spasi. Angka atau simbol tidak diperbolehkan.',
+        'Perbaiki Nama'
+      );
+      setActiveErrorField('pet_name');
+      return;
+    }
+
+    if (!/^08/.test(phone) || phone.length < 9) {
+      showPopup(
+        'error',
+        'Nomor WhatsApp Tidak Valid',
+        'Pastikan nomor hanya berisi angka, diawali 08, dan minimal 9 digit.\nContoh: 081234567890',
+        'Cek Lagi'
+      );
+      setActiveErrorField('phone');
       return;
     }
 
     setErrorMsg('');
 
     try {
-      const response = await fetch("http://localhost:5000/api/members", {
+      const response = await fetch("https://api-pawcare.rifkydevs.my.id/api/members", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -67,15 +120,36 @@ export default function Members() {
 
       const result = await response.json();
 
-      if (response.ok) {
-        alert("Data member berhasil disimpan");
-        setSubmitted(true);
-      } else {
-        alert(result.message || "Gagal menyimpan data");
+      if (!response.ok) {
+        throw new Error(result.message || "Data tidak valid.");
       }
-    } catch (err) {
-      console.error(err);
-      alert("Gagal menghubungi server. Pastikan server backend Anda menyala.");
+
+      showPopup(
+        "success",
+        "Pendaftaran Berhasil",
+        "Data member berhasil disimpan. Tim PawCare akan segera menghubungi Anda."
+      );
+      setSubmitted(true);
+    } catch (error) {
+      const errMsg = error.message.toLowerCase();
+      const isPhoneErr = errMsg.includes('nomor') || errMsg.includes('phone') || errMsg.includes('whatsapp');
+      const isOwnerErr = errMsg.includes('pemilik') || errMsg.includes('owner');
+      const isPetErr = errMsg.includes('hewan') || errMsg.includes('pet');
+      
+      let field = null;
+      if (isPhoneErr) field = 'phone';
+      else if (isOwnerErr) field = 'owner_name';
+      else if (isPetErr) field = 'pet_name';
+
+      showPopup(
+        "error",
+        isPhoneErr ? "Nomor WhatsApp Tidak Valid" : (isOwnerErr || isPetErr) ? "Nama Tidak Valid" : "Format Data Belum Valid",
+        error.message || "Periksa kembali data yang Anda isi.",
+        isPhoneErr ? "Cek Lagi" : (isOwnerErr || isPetErr) ? "Perbaiki Nama" : "Mengerti"
+      );
+      if (field) {
+        setActiveErrorField(field);
+      }
     }
   };
 
@@ -94,7 +168,7 @@ export default function Members() {
 
   return (
     <section id="member" className="section bg-warm-member">
-      <div className="section-title-wrapper">
+      <div className="section-title-wrapper reveal">
         <span className="section-subtitle font-heading">Loyalty Program</span>
         <h2>Gabung Member PawCare</h2>
         <p className="section-description">
@@ -104,7 +178,7 @@ export default function Members() {
 
       <div className="member-layout">
         {/* Left Side: Membership Perks Info */}
-        <div className="member-info-column">
+        <div className="member-info-column reveal-left">
           <div className="premium-card perks-card">
             <h3 className="perks-title">Keuntungan Eksklusif Member</h3>
             <p className="perks-subtitle">Dapatkan fasilitas bintang lima untuk hewan kesayangan Anda:</p>
@@ -149,7 +223,7 @@ export default function Members() {
         </div>
 
         {/* Right Side: The Interactive Registration Form */}
-        <div className="member-form-column">
+        <div className="member-form-column reveal-right reveal-delay-1">
           {!submitted ? (
             <form className="premium-card member-form" onSubmit={handleSubmit}>
               <h3 className="form-title">Formulir Pendaftaran</h3>
@@ -163,7 +237,8 @@ export default function Members() {
                   type="text" 
                   id="namaLengkap" 
                   name="owner_name" 
-                  className="form-input"
+                  className={`form-input ${activeErrorField === 'owner_name' ? 'is-invalid' : ''}`}
+                  ref={ownerNameInputRef}
                   placeholder="Contoh: Prabowo"
                   value={formData.owner_name}
                   onChange={handleChange}
@@ -178,7 +253,8 @@ export default function Members() {
                     type="text" 
                     id="namaHewan" 
                     name="pet_name" 
-                    className="form-input"
+                    className={`form-input ${activeErrorField === 'pet_name' ? 'is-invalid' : ''}`}
+                    ref={petNameInputRef}
                     placeholder="Contoh: Teddy"
                     value={formData.pet_name}
                     onChange={handleChange}
@@ -197,7 +273,6 @@ export default function Members() {
                   >
                     <option value="Kucing">Kucing</option>
                     <option value="Anjing">Anjing</option>
-                    <option value="Burung">Burung</option>
 
                   </select>
                 </div>
@@ -207,12 +282,18 @@ export default function Members() {
                 <label className="form-label" htmlFor="whatsapp">Nomor WhatsApp</label>
                 <input 
                   type="tel" 
+                  inputMode="numeric"
+                  maxLength={15}
                   id="whatsapp" 
                   name="phone" 
-                  className="form-input"
+                  className={`form-input ${activeErrorField === 'phone' ? 'is-invalid' : ''}`}
+                  ref={phoneInputRef}
                   placeholder="Contoh: 08123456789"
                   value={formData.phone}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    if (activeErrorField === 'phone') setActiveErrorField(null);
+                    setFormData({ ...formData, phone: e.target.value.replace(/\D/g, "") });
+                  }}
                   required 
                 />
               </div>
@@ -287,7 +368,113 @@ export default function Members() {
         </div>
       </div>
 
+      {popup && (
+        <div className="popup-overlay" onClick={closePopup}>
+          <div className="popup-card" onClick={(e) => e.stopPropagation()}>
+            <div className={`popup-icon ${popup.type === "success" ? "success" : "error"}`}>
+              {popup.type === "success" ? (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="36" height="36" className="animate-popScale">
+                  <path d="M12 5c-.8 0-1.5.7-1.5 1.5s.7 1.5 1.5 1.5s1.5-.7 1.5-1.5S12.8 5 12 5zm-4 2c-.8 0-1.5.7-1.5 1.5S7.2 10 8 10s1.5-.7 1.5-1.5S8.8 7 8 7zm8 0c-.8 0-1.5.7-1.5 1.5s.7 1.5 1.5 1.5s1.5-.7 1.5-1.5S16.8 7 16 7zm-4 4c-2.2 0-4 1.8-4 4s1.8 4 4 4s4-1.8 4-4s-1.8-4-4-4z" fill="currentColor" opacity="0.2" stroke="none" />
+                  <polyline points="20 6 9 17 4 12" stroke="var(--success)" strokeWidth="3" />
+                </svg>
+              ) : activeErrorField === 'phone' ? (
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="32" height="32" className="animate-popScale">
+                  <path d="M12 5c-.8 0-1.5.7-1.5 1.5s.7 1.5 1.5 1.5s1.5-.7 1.5-1.5S12.8 5 12 5zm-4 2c-.8 0-1.5.7-1.5 1.5S7.2 10 8 10s1.5-.7 1.5-1.5S8.8 7 8 7zm8 0c-.8 0-1.5.7-1.5 1.5s.7 1.5 1.5 1.5s1.5-.7 1.5-1.5S16.8 7 16 7zm-4 4c-2.2 0-4 1.8-4 4s1.8 4 4 4s4-1.8 4-4s-1.8-4-4-4z" fill="currentColor" opacity="0.15" stroke="none" />
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" strokeWidth="2.5" />
+                  
+                  {/* Circle Mask without outline stroke */}
+                  <circle cx="18" cy="6" r="5" fill="#1b110d" stroke="none" />
+                  {/* Cross lines */}
+                  <line x1="15" y1="3" x2="21" y2="9" strokeWidth="2.5" />
+                  <line x1="21" y1="3" x2="15" y2="9" strokeWidth="2.5" />
+                </svg>
+              ) : (activeErrorField === 'owner_name' || activeErrorField === 'pet_name') ? (
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="32" height="32" className="animate-popScale">
+                  <path d="M12 5c-.8 0-1.5.7-1.5 1.5s.7 1.5 1.5 1.5s1.5-.7 1.5-1.5S12.8 5 12 5zm-4 2c-.8 0-1.5.7-1.5 1.5S7.2 10 8 10s1.5-.7 1.5-1.5S8.8 7 8 7zm8 0c-.8 0-1.5.7-1.5 1.5s.7 1.5 1.5 1.5s1.5-.7 1.5-1.5S16.8 7 16 7zm-4 4c-2.2 0-4 1.8-4 4s1.8 4 4 4s4-1.8 4-4s-1.8-4-4-4z" fill="currentColor" opacity="0.15" stroke="none" />
+                  <path d="M18 21v-1a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v1" strokeWidth="2.5" />
+                  <circle cx="11" cy="7" r="4" strokeWidth="2.5" />
+                  
+                  {/* Circle Mask without outline stroke */}
+                  <circle cx="18" cy="6" r="5" fill="#1b110d" stroke="none" />
+                  {/* Cross lines */}
+                  <line x1="15" y1="3" x2="21" y2="9" strokeWidth="2.5" />
+                  <line x1="21" y1="3" x2="15" y2="9" strokeWidth="2.5" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="36" height="36" className="animate-popScale">
+                  <path d="M12 5c-.8 0-1.5.7-1.5 1.5s.7 1.5 1.5 1.5s1.5-.7 1.5-1.5S12.8 5 12 5zm-4 2c-.8 0-1.5.7-1.5 1.5S7.2 10 8 10s1.5-.7 1.5-1.5S8.8 7 8 7zm8 0c-.8 0-1.5.7-1.5 1.5s.7 1.5 1.5 1.5s1.5-.7 1.5-1.5S16.8 7 16 7zm-4 4c-2.2 0-4 1.8-4 4s1.8 4 4 4s4-1.8 4-4s-1.8-4-4-4z" fill="currentColor" opacity="0.2" stroke="none" />
+                  <line x1="12" y1="8" x2="12" y2="13" stroke="var(--primary)" strokeWidth="3" />
+                  <circle cx="12" cy="17" r="1.5" fill="var(--primary)" />
+                </svg>
+              )}
+            </div>
+
+            <h3 className="popup-title">
+              {popup.title}
+            </h3>
+
+            <p className="popup-message" style={{ whiteSpace: 'pre-line' }}>
+              {popup.message}
+            </p>
+
+            <button
+              onClick={closePopup}
+              className="popup-close-btn"
+            >
+              {popup.buttonText || "Mengerti"}
+            </button>
+          </div>
+        </div>
+      )}
+
       <style>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+
+        @keyframes popScale {
+          0% {
+            transform: scale(0) rotate(-180deg);
+            opacity: 0;
+          }
+          50% {
+            transform: scale(1.15);
+          }
+          100% {
+            transform: scale(1) rotate(0deg);
+            opacity: 1;
+          }
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out;
+        }
+
+        .animate-slideUp {
+          animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .animate-popScale {
+          animation: popScale 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+          animation-delay: 0.1s;
+        }
+
         .bg-warm-member {
           background: linear-gradient(180deg, rgba(255, 122, 69, 0.02) 0%, transparent 100%);
         }

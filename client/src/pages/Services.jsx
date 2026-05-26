@@ -67,7 +67,7 @@ export default function Services() {
   const [services, setServices] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/services")
+    fetch("https://api-pawcare.rifkydevs.my.id/api/services")
       .then((res) => res.json())
       .then((data) => setServices(data))
       .catch((err) => console.error("Gagal ambil layanan:", err));
@@ -75,7 +75,7 @@ export default function Services() {
 
   return (
     <section id="services" className="section bg-warm-cozy">
-      <div className="section-title-wrapper">
+      <div className="section-title-wrapper reveal">
         <span className="section-subtitle font-heading">Layanan Kami</span>
         <h2>Perawatan Profesional Hewan</h2>
         <p className="section-description">
@@ -85,8 +85,8 @@ export default function Services() {
 
       {/* Services Grid */}
       <div className="grid grid-2 services-grid">
-        {services.map((service) => (
-          <div key={service.id} className="premium-card service-card card-layanan-kamu">
+        {services.map((service, idx) => (
+          <div key={service.id} className={`premium-card service-card card-layanan-kamu ${idx % 2 === 0 ? 'reveal-left' : 'reveal-right'} reveal-delay-${(idx % 2) + 1}`}>
             {/* Header: Icon & Title */}
             <div className="service-header">
               <div className="service-icon-box" style={{ backgroundColor: (SERVICE_LIST.find(s => s.id === service.id) || SERVICE_LIST[0])?.accentColor || 'rgba(255, 122, 69, 0.08)' }}>

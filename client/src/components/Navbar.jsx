@@ -270,7 +270,7 @@ export default function Navbar() {
         .navbar-menu-mobile {
           display: none;
           position: absolute;
-          top: 80px;
+          top: 100%;
           left: 0;
           right: 0;
           background-color: var(--card-bg);
@@ -311,7 +311,7 @@ export default function Navbar() {
           }
           
           .navbar-toggle {
-            display: none; /* Hide standalone toggle */
+            display: block; /* Show hamburger in actions container on mobile */
           }
 
           .navbar-mobile-actions {
@@ -324,10 +324,6 @@ export default function Navbar() {
           
           .navbar-scrolled {
             height: 64px;
-          }
-          
-          .navbar-scrolled + .navbar-menu-mobile {
-            top: 64px;
           }
         }
       `}</style>

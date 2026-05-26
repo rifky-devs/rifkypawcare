@@ -8,7 +8,7 @@ export default function Home() {
         <div className="hero-content animate-fade-in">
           <div className="badge-welcome">
             <span className="badge-dot"></span>
-            Selamat Datang di PawCare
+            Selamat Datang di PawCare Jakarta <span className="flag-wave">🇮🇩</span>
           </div>
           <h1 className="hero-title">
             Rifky PawCare <span className="text-highlight">Petshop</span>
@@ -132,6 +132,20 @@ export default function Home() {
           0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 122, 69, 0.7); }
           70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(255, 122, 69, 0); }
           100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 122, 69, 0); }
+        }
+
+        .flag-wave {
+          display: inline-block;
+          animation: flagWave 1.6s ease-in-out infinite;
+          transform-origin: bottom left;
+          margin-left: 0.35rem;
+          font-size: 1.15rem;
+          line-height: 1;
+        }
+
+        @keyframes flagWave {
+          0%, 100% { transform: rotate(-3deg) translateY(0); }
+          50% { transform: rotate(10deg) translateY(-2px); }
         }
 
         .hero-title {
@@ -357,15 +371,71 @@ export default function Home() {
           }
 
           .hero-image-wrapper {
-            max-width: 320px;
+            max-width: 290px;
+          }
+
+          /* Premium Micro-Scaling of Floating Badges */
+          .float-badge {
+            padding: 0.35rem 0.65rem;
+            border-radius: 12px;
+            gap: 0.35rem;
+            box-shadow: var(--shadow-sm);
+          }
+
+          .badge-icon {
+            font-size: 1rem;
+          }
+
+          .badge-text strong {
+            font-size: 0.72rem;
+          }
+
+          .badge-text span {
+            font-size: 0.62rem;
           }
 
           .badge-top-left {
-            left: -5%;
+            top: 12%;
+            left: -4%;
           }
 
           .badge-bottom-right {
-            right: -5%;
+            bottom: 12%;
+            right: -4%;
+          }
+        }
+
+        @media (max-width: 400px) {
+          .hero-image-wrapper {
+            max-width: 250px;
+          }
+
+          .float-badge {
+            padding: 0.3rem 0.55rem;
+            border-radius: 10px;
+            gap: 0.3rem;
+          }
+
+          .badge-icon {
+            font-size: 0.9rem;
+          }
+
+          .badge-text strong {
+            font-size: 0.68rem;
+          }
+
+          .badge-text span {
+            font-size: 0.58rem;
+          }
+
+          .badge-top-left {
+            top: 14%;
+            left: -6%;
+          }
+
+          .badge-bottom-right {
+            bottom: 14%;
+            right: -6%;
           }
         }
       `}</style>
