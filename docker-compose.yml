@@ -1,24 +1,7 @@
-version: "3.9"
-
 services:
   pawcare-web:
-    build:
-      context: ./client
-      dockerfile: Dockerfile
+    build: .
     container_name: pawcare-web
     ports:
       - "3010:80"
-    restart: unless-stopped
-
-  pawcare-backend:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
-    container_name: pawcare-backend
-    ports:
-      - "5001:5000"
-    # If you need environment variables, create a `server/.env` file and
-    # uncomment the next two lines. Compose will read it into the container.
-    # env_file:
-    #   - ./server/.env
     restart: unless-stopped
