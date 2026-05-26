@@ -1,0 +1,11 @@
+/* App.css - Cleaned to prioritize index.css rules */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: relative;
+}
+
+main {
+  flex-grow: 1;
+}
