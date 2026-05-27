@@ -6,9 +6,14 @@ import Services from './pages/Services';
 import Members from './pages/Members';
 import Footer from './components/Footer';
 import CartDrawer from './components/CartDrawer';
+import PawCursor from './components/PawCursor';
+import useScrollReveal from './hooks/useScrollReveal';
 import './App.css';
 
 function App() {
+  // Activate premium scroll reveal animations globally
+  useScrollReveal();
+
   return (
     <CartProvider>
       <div className="app-container">
@@ -35,9 +40,13 @@ function App() {
 
         {/* Floating Right Shopping Cart Drawer */}
         <CartDrawer />
+
+        {/* Custom Animated Paw Cursor Follower */}
+        <PawCursor />
       </div>
     </CartProvider>
   );
 }
 
 export default App;
+

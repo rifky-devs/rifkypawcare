@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 
+const API_URL = import.meta.env.VITE_API_URL || 'https://api-pawcare.rifkydevs.my.id';
+
 const SERVICE_LIST = [
   {
     id: 1,
     title: 'Professional Grooming',
     tagline: 'Pemandian & Cukur Bulu Rapi',
     price: 'Rp 75.000',
-    description: 'Pemandian air hangat menggunakan sampo organik anti-kutu, pengeringan higienis, cukur bulu estetis, potong kuku, serta pembersihan telinga.',
+    description: 'Pemandian air hangat menggunakan sampo organik anti kutu, pengeringan higienis, cukur bulu estetis, potong kuku, serta pembersihan telinga.',
     accentColor: 'rgba(255, 122, 69, 0.08)',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="srv-icon">
@@ -19,9 +21,9 @@ const SERVICE_LIST = [
   {
     id: 2,
     title: 'Cozy Pet Hotel',
-    tagline: 'Penitipan Mewah Ber-AC',
+    tagline: 'Penitipan Mewah Ber AC',
     price: 'Rp 50.000 / hari',
-    description: 'Penitipan hewan ber-AC dengan kasur tidur nyaman, jadwal bermain interaktif, makanan super-premium terjadwal, dan pengawasan kamera CCTV 24 jam.',
+    description: 'Penitipan hewan ber AC dengan kasur tidur nyaman, jadwal bermain interaktif, makanan super premium terjadwal, dan pengawasan kamera CCTV 24 jam.',
     accentColor: 'rgba(255, 213, 145, 0.15)',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="srv-icon">
@@ -65,17 +67,40 @@ const SERVICE_LIST = [
 
 export default function Services() {
   const [services, setServices] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch("https://api-pawcare.rifkydevs.my.id/api/services")
-      .then((res) => res.json())
-      .then((data) => setServices(data))
-      .catch((err) => console.error("Gagal ambil layanan:", err));
+    setIsLoading(true);
+    fetch(`${API_URL}/api/services`)
+      .then((res) => {
+        if (!res.ok) throw new Error('API error');
+        return res.json();
+      })
+      .then((data) => {
+        // Gabungkan data API dengan metadata lokal (icon, accentColor, tagline)
+        const enriched = data.map((apiItem) => {
+          const local = SERVICE_LIST.find((s) => s.id === apiItem.id) || SERVICE_LIST[0];
+          return {
+            ...local,
+            ...apiItem,
+            // Normalisasi nama field
+            title: apiItem.name || apiItem.title || local.title,
+            tagline: apiItem.subtitle || apiItem.tagline || local.tagline,
+            price: apiItem.price || local.price,
+          };
+        });
+        setServices(enriched.length > 0 ? enriched : SERVICE_LIST);
+      })
+      .catch(() => {
+        console.warn('API tidak dapat dijangkau, menggunakan data layanan lokal.');
+        setServices(SERVICE_LIST);
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
   return (
     <section id="services" className="section bg-warm-cozy">
-      <div className="section-title-wrapper reveal">
+      <div className="section-title-wrapper reveal reveal-up">
         <span className="section-subtitle font-heading">Layanan Kami</span>
         <h2>Perawatan Profesional Hewan</h2>
         <p className="section-description">
@@ -84,36 +109,65 @@ export default function Services() {
       </div>
 
       {/* Services Grid */}
-      <div className="grid grid-2 services-grid">
-        {services.map((service, idx) => (
-          <div key={service.id} className={`premium-card service-card card-layanan-kamu ${idx % 2 === 0 ? 'reveal-left' : 'reveal-right'} reveal-delay-${(idx % 2) + 1}`}>
-            {/* Header: Icon & Title */}
-            <div className="service-header">
-              <div className="service-icon-box" style={{ backgroundColor: (SERVICE_LIST.find(s => s.id === service.id) || SERVICE_LIST[0])?.accentColor || 'rgba(255, 122, 69, 0.08)' }}>
-                {(SERVICE_LIST.find(s => s.id === service.id) || SERVICE_LIST[0])?.icon}
+      {isLoading ? (
+        <div className="grid grid-2 services-grid reveal-stagger">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="premium-card service-card reveal reveal-scale" style={{ minHeight: 220 }}>
+              <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', alignItems: 'center' }}>
+                <div style={{ background: 'rgba(74,59,50,0.06)', borderRadius: 18, width: 60, height: 60, flexShrink: 0 }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ background: 'rgba(74,59,50,0.06)', borderRadius: 8, height: 16, marginBottom: '0.5rem', width: '60%' }} />
+                  <div style={{ background: 'rgba(74,59,50,0.06)', borderRadius: 6, height: 12, width: '40%' }} />
+                </div>
               </div>
-              <div className="service-title-info">
-                <h3 className="service-title-text">{service.name}</h3>
-                <span className="service-tagline">{service.subtitle}</span>
-              </div>
+              <div style={{ background: 'rgba(74,59,50,0.06)', borderRadius: 8, height: 12, marginBottom: '0.5rem', width: '100%' }} />
+              <div style={{ background: 'rgba(74,59,50,0.06)', borderRadius: 8, height: 12, width: '80%' }} />
             </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-2 services-grid reveal-stagger">
+          {services.map((service, idx) => {
+            const local = SERVICE_LIST.find((s) => s.id === service.id) || SERVICE_LIST[idx % SERVICE_LIST.length];
+            
+            // Format price: handle both Number and String coming from API (e.g. "75000.00")
+            const rawPrice = service.price || local.price;
+            const parsedPrice = Number(rawPrice);
+            const displayPrice = !isNaN(parsedPrice) && rawPrice !== ''
+              ? `Rp ${parsedPrice.toLocaleString('id-ID')}`
+              : rawPrice;
 
-            {/* Description */}
-            <p className="service-desc">{service.description}</p>
+            return (
+              <div key={service.id} className="premium-card service-card card-layanan-kamu reveal reveal-scale">
+                {/* Header: Icon & Title */}
+                <div className="service-header">
+                  <div className="service-icon-box" style={{ backgroundColor: local.accentColor || 'rgba(255, 122, 69, 0.08)' }}>
+                    {local.icon}
+                  </div>
+                  <div className="service-title-info">
+                    <h3 className="service-title-text">{service.title || local.title}</h3>
+                    <span className="service-tagline">{service.tagline || local.tagline}</span>
+                  </div>
+                </div>
 
-            {/* Footer: Pricing & Booking Action */}
-            <div className="service-footer">
-              <div className="service-price">
-                <span className="price-label">Estimasi Biaya</span>
-                <span className="price-val">Rp {Number(service.price).toLocaleString("id-ID")}</span>
+                {/* Description */}
+                <p className="service-desc">{service.description || local.description}</p>
+
+                {/* Footer: Pricing & Booking Action */}
+                <div className="service-footer">
+                  <div className="service-price">
+                    <span className="price-label">Harga</span>
+                    <span className="price-val">{displayPrice}</span>
+                  </div>
+                  <a href="#member" className="btn btn-secondary btn-book">
+                    Booking →
+                  </a>
+                </div>
               </div>
-              <a href="#member" className="btn btn-secondary btn-book">
-                Booking →
-              </a>
-            </div>
-          </div>
-        ))}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       <style>{`
         .bg-warm-cozy {

@@ -1,7 +1,0 @@
-services:
-  pawcare-web:
-    build: .
-    container_name: pawcare-web
-    ports:
-      - "3010:80"
-    restart: unless-stopped

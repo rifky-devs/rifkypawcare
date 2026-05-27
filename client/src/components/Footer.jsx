@@ -266,8 +266,8 @@ export default function Footer() {
 
         /* Subfooter Styles */
         .subfooter {
-          border-top: 1px solid rgba(255, 255, 255, 0.08);
-          padding: 2rem 0;
+          border-top: 1px solid rgba(255, 255, 255, 0.05);
+          padding: 1.5rem 0;
           text-align: center;
         }
 
@@ -278,12 +278,15 @@ export default function Footer() {
           max-width: 1200px;
           margin: 0 auto;
           padding: 0 2rem;
-          font-size: 0.85rem;
-          opacity: 0.65;
+          font-size: 0.75rem;
+          color: rgba(255, 255, 255, 0.55);
+          letter-spacing: 0.04em;
+          line-height: 1.6;
         }
 
         .subfooter-container .credit {
           font-weight: 500;
+          color: rgba(255, 255, 255, 0.7);
         }
 
         @media (max-width: 1024px) {
@@ -301,7 +304,7 @@ export default function Footer() {
 
           .subfooter-container {
             flex-direction: column;
-            gap: 0.75rem;
+            gap: 0.5rem;
           }
         }
       `}</style>

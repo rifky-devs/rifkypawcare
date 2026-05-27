@@ -1,5 +1,12 @@
 import { useState } from 'react';
 
+const API_URL = import.meta.env.VITE_API_URL || 'https://api-pawcare.rifkydevs.my.id';
+
+// Frontend validation rules (same as backend)
+const nameRegex = /^[A-Za-z\u00C0-\u024F\s.'-]{3,60}$/;
+const petNameRegex = /^[A-Za-z\u00C0-\u024F0-9\s.'-]{2,40}$/;
+const phoneRegex = /^08[0-9]{8,13}$/;
+
 const MEMBER_TIERS = [
   {
     id: 'silver',
@@ -49,44 +56,63 @@ export default function Members() {
     e.preventDefault();
     
     const { owner_name, pet_name, phone } = formData;
+
+    // Validasi: semua kolom wajib diisi
     if (!owner_name.trim() || !pet_name.trim() || !phone.trim()) {
       showPopup('error', 'Data Tidak Lengkap', 'Harap isi semua kolom formulir dengan benar.');
       return;
     }
 
-    if (phone.length < 9) {
-      showPopup('error', 'Nomor Tidak Valid', 'Nomor WhatsApp/Telepon harus minimal 9 angka.');
+    // Validasi nama pemilik
+    if (!nameRegex.test(owner_name.trim())) {
+      showPopup('error', 'Nama Tidak Valid',
+        'Nama pemilik hanya boleh berisi huruf, spasi, titik, atau tanda hubung (min. 3 karakter).');
+      return;
+    }
+
+    // Validasi nama hewan
+    if (!petNameRegex.test(pet_name.trim())) {
+      showPopup('error', 'Nama Hewan Tidak Valid',
+        'Nama hewan hanya boleh berisi huruf, angka, atau spasi (2–40 karakter).');
+      return;
+    }
+
+    // Validasi nomor telepon
+    if (!phoneRegex.test(phone.trim())) {
+      showPopup('error', 'Nomor WhatsApp Tidak Valid',
+        'Nomor harus diawali 08 dan terdiri dari 10 sampai 15 digit.\nContoh: 08123456789');
       return;
     }
 
     setErrorMsg('');
 
     try {
-      const response = await fetch("https://api-pawcare.rifkydevs.my.id/api/members", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const response = await fetch(`${API_URL}/api/members`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || "Data tidak valid.");
+        throw new Error(result.message || 'Data tidak valid.');
       }
 
       showPopup(
-        "success",
-        "Pendaftaran Berhasil",
-        "Data member berhasil disimpan. Tim PawCare akan segera menghubungi Anda."
+        'success',
+        'Pendaftaran Berhasil! 🎉',
+        'Data member berhasil disimpan. Tim PawCare akan segera menghubungi Anda via WhatsApp.'
       );
       setSubmitted(true);
     } catch (error) {
+      const isNetworkError = error instanceof TypeError && error.message.toLowerCase().includes('fetch');
       showPopup(
-        "error",
-        "Format Data Belum Valid",
-        error.message || "Periksa kembali data yang Anda isi."
+        'error',
+        isNetworkError ? 'Server Tidak Dapat Dijangkau' : 'Pendaftaran Gagal',
+        isNetworkError
+          ? 'Koneksi ke server PawCare gagal. Pastikan internet Anda aktif atau coba lagi beberapa saat.'
+          : (error.message || 'Periksa kembali data yang Anda isi.')
       );
     }
   };
@@ -106,7 +132,7 @@ export default function Members() {
 
   return (
     <section id="member" className="section bg-warm-member">
-      <div className="section-title-wrapper">
+      <div className="section-title-wrapper reveal reveal-up">
         <span className="section-subtitle font-heading">Loyalty Program</span>
         <h2>Gabung Member PawCare</h2>
         <p className="section-description">
@@ -116,7 +142,7 @@ export default function Members() {
 
       <div className="member-layout">
         {/* Left Side: Membership Perks Info */}
-        <div className="member-info-column">
+        <div className="member-info-column reveal reveal-left">
           <div className="premium-card perks-card">
             <h3 className="perks-title">Keuntungan Eksklusif Member</h3>
             <p className="perks-subtitle">Dapatkan fasilitas bintang lima untuk hewan kesayangan Anda:</p>
@@ -161,7 +187,7 @@ export default function Members() {
         </div>
 
         {/* Right Side: The Interactive Registration Form */}
-        <div className="member-form-column">
+        <div className="member-form-column reveal reveal-right">
           {!submitted ? (
             <form className="premium-card member-form" onSubmit={handleSubmit}>
               <h3 className="form-title">Formulir Pendaftaran</h3>
@@ -301,26 +327,24 @@ export default function Members() {
       </div>
 
       {popup && (
-        <div className="popup-overlay fixed inset-0 z-[9999] flex items-center justify-center px-4">
-          <div className="popup-card max-w-sm w-full p-6 text-center">
-            <div className={`popup-icon mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full ${
-              popup.type === "success" ? "bg-green-500/20 text-green-400" : "bg-orange-500/20 text-orange-400"
-            }`}>
-              {popup.type === "success" ? "✓" : "!"}
+        <div className="popup-overlay" onClick={() => setPopup(null)}>
+          <div className="popup-card" onClick={(e) => e.stopPropagation()}>
+            <div className={`popup-icon ${popup.type === 'success' ? 'success' : 'error'}`}>
+              {popup.type === 'success' ? (
+                <svg viewBox="0 0 24 24" fill="none" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" width="36" height="36" className="animate-popScale">
+                  <polyline points="20 6 9 17 4 12" stroke="#52c41a" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="36" height="36" className="animate-popScale">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="13" strokeWidth="3" />
+                  <circle cx="12" cy="17" r="1.5" fill="var(--primary)" stroke="none" />
+                </svg>
+              )}
             </div>
-
-            <h3 className="text-xl font-bold text-white mb-2">
-              {popup.title}
-            </h3>
-
-            <p className="text-sm leading-relaxed text-gray-300 mb-6">
-              {popup.message}
-            </p>
-
-            <button
-              onClick={() => setPopup(null)}
-              className="popup-close-btn w-full rounded-2xl bg-orange-500 px-5 py-3 font-bold text-white shadow-lg transition hover:bg-orange-600 hover:scale-105"
-            >
+            <h3 className="popup-title">{popup.title}</h3>
+            <p className="popup-message" style={{ whiteSpace: 'pre-line' }}>{popup.message}</p>
+            <button onClick={() => setPopup(null)} className="popup-close-btn">
               Mengerti
             </button>
           </div>
@@ -385,6 +409,12 @@ export default function Members() {
           gap: 3rem;
           width: 100%;
           margin-top: 1rem;
+        }
+
+        .member-info-column, .member-form-column {
+          display: flex;
+          flex-direction: column;
+          height: 100%;
         }
 
         /* Perks Column Styles */
@@ -504,7 +534,9 @@ export default function Members() {
           display: flex;
           flex-direction: column;
           gap: 1.5rem;
+          height: 100%;
         }
+
 
         .form-title {
           font-size: 1.4rem;
@@ -579,7 +611,7 @@ export default function Members() {
 
         .btn-submit-form {
           width: 100%;
-          margin-top: 1rem;
+          margin-top: auto !important; /* Dynamically push submit button to the bottom of the card */
           padding: 0.9rem !important;
         }
 
@@ -589,6 +621,14 @@ export default function Members() {
           border-radius: 24px;
           text-align: center;
           align-items: center;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .success-card .btn-block {
+          margin-top: auto !important; /* Dynamically push reset button to the bottom */
+          width: 100%;
         }
 
         .success-icon-wrapper {

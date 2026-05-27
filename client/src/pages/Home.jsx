@@ -5,7 +5,7 @@ export default function Home() {
     <header id="home" className="hero-section">
       <div className="hero-container">
         {/* Left Text Column */}
-        <div className="hero-content animate-fade-in">
+        <div className="hero-content reveal reveal-left">
           <div className="badge-welcome">
             <span className="badge-dot"></span>
             Selamat Datang di PawCare Jakarta <span className="flag-wave">🇮🇩</span>
@@ -33,17 +33,17 @@ export default function Home() {
           </div>
 
           <div className="hero-stats">
-            <div className="stat-item">
+            <div className="stat-item reveal reveal-scale" style={{ transitionDelay: '0.1s' }}>
               <span className="stat-number">100+</span>
               <span className="stat-label">Pelanggan</span>
             </div>
             <div className="stat-divider"></div>
-            <div className="stat-item">
-              <span className="stat-number">4.9</span>
+            <div className="stat-item reveal reveal-scale" style={{ transitionDelay: '0.2s' }}>
+              <span className="stat-number">4.9/5</span>
               <span className="stat-label">Rating Ulasan</span>
             </div>
             <div className="stat-divider"></div>
-            <div className="stat-item">
+            <div className="stat-item reveal reveal-scale" style={{ transitionDelay: '0.3s' }}>
               <span className="stat-number">100%</span>
               <span className="stat-label">Cinta & Kasih</span>
             </div>
@@ -51,20 +51,20 @@ export default function Home() {
         </div>
 
         {/* Right Graphic Column */}
-        <div className="hero-graphic animate-fade-in">
+        <div className="hero-graphic reveal reveal-right">
           <div className="hero-image-wrapper">
             <div className="hero-bg-blob"></div>
             <img src={heroImg} alt="Cute Pets" className="hero-image" />
             
             {/* Interactive Float Badges */}
-            <div className="float-badge badge-top-left">
+            <div className="float-badge badge-top-left reveal reveal-scale" style={{ transitionDelay: '0.25s' }}>
               <span className="badge-icon">🐱</span>
               <div className="badge-text">
                 <strong>Cat Care</strong>
                 <span>Nutrisi Premium</span>
               </div>
             </div>
-            <div className="float-badge badge-bottom-right">
+            <div className="float-badge badge-bottom-right reveal reveal-scale" style={{ transitionDelay: '0.4s' }}>
               <span className="badge-icon">🐶</span>
               <div className="badge-text">
                 <strong>Dog Grooming</strong>
@@ -77,9 +77,9 @@ export default function Home() {
 
       <style>{`
         .hero-section {
-          padding-top: 140px; /* Accounts for fixed navbar */
-          padding-bottom: 5rem;
-          min-height: 100vh;
+          padding-top: 120px; /* Balanced for perfect vertical centering */
+          padding-bottom: 60px;
+          min-height: auto;
           display: flex;
           align-items: center;
           background: radial-gradient(circle at 80% 20%, rgba(255, 122, 69, 0.05) 0%, transparent 40%);
@@ -346,8 +346,8 @@ export default function Home() {
 
         @media (max-width: 768px) {
           .hero-section {
-            padding-top: 110px;
-            padding-bottom: 3.5rem;
+            padding-top: 100px;
+            padding-bottom: 30px;
           }
 
           .hero-container {
@@ -368,6 +368,29 @@ export default function Home() {
 
           .hero-stats {
             justify-content: center;
+            gap: 0.85rem;
+            flex-wrap: nowrap;
+            width: 100%;
+          }
+
+          .stat-item {
+            align-items: center;
+            text-align: center;
+            flex: 1;
+            min-width: 0;
+          }
+
+          .stat-number {
+            font-size: 1.35rem;
+          }
+
+          .stat-label {
+            font-size: 0.72rem;
+            white-space: nowrap;
+          }
+
+          .stat-divider {
+            height: 25px;
           }
 
           .hero-image-wrapper {

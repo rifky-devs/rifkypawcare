@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react';
 import { useCart } from '../context/CartContext';
 
+const API_URL = import.meta.env.VITE_API_URL || 'https://api-pawcare.rifkydevs.my.id';
+
 export default function CartDrawer() {
   const {
     cartItems,
@@ -80,7 +82,7 @@ export default function CartDrawer() {
     setLoading(true);
 
     try {
-      const response = await fetch("https://api-pawcare.rifkydevs.my.id/api/orders", {
+      const response = await fetch(`${API_URL}/api/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -110,23 +112,27 @@ export default function CartDrawer() {
       setCustomerName('');
       setPhone('');
     } catch (error) {
-      const errMsg = error.message.toLowerCase();
+      const isNetworkError = error instanceof TypeError && error.message.toLowerCase().includes('fetch');
+      const errMsg = isNetworkError ? '' : error.message.toLowerCase();
       const isPhoneErr = errMsg.includes('nomor') || errMsg.includes('phone') || errMsg.includes('whatsapp');
       const isNameErr = errMsg.includes('nama') || errMsg.includes('customer') || errMsg.includes('pelanggan');
       
       let field = null;
-      if (isPhoneErr) field = 'phone';
-      else if (isNameErr) field = 'customer_name';
+      if (!isNetworkError && isPhoneErr) field = 'phone';
+      else if (!isNetworkError && isNameErr) field = 'customer_name';
 
       showPopup(
-        "error",
-        isPhoneErr ? "Nomor WhatsApp Tidak Valid" : isNameErr ? "Nama Tidak Valid" : "Checkout Gagal",
-        error.message || "Periksa kembali data yang Anda isi.",
-        isPhoneErr ? "Cek Lagi" : isNameErr ? "Perbaiki Nama" : "Mengerti"
+        'error',
+        isNetworkError ? 'Server Tidak Dapat Dijangkau'
+          : isPhoneErr ? 'Nomor WhatsApp Tidak Valid'
+          : isNameErr ? 'Nama Tidak Valid'
+          : 'Checkout Gagal',
+        isNetworkError
+          ? 'Koneksi ke server PawCare gagal. Pastikan internet Anda aktif atau coba beberapa saat lagi.'
+          : (error.message || 'Periksa kembali data yang Anda isi.'),
+        isNetworkError ? 'Tutup' : isPhoneErr ? 'Cek Lagi' : isNameErr ? 'Perbaiki Nama' : 'Mengerti'
       );
-      if (field) {
-        setActiveErrorField(field);
-      }
+      if (field) setActiveErrorField(field);
     } finally {
       setLoading(false);
     }
