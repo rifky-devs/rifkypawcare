@@ -1,0 +1,207 @@
+# ===========================
+# DEPENDENCIES
+# ===========================
+node_modules/
+**/node_modules/
+
+# ===========================
+# ENVIRONMENT / CREDENTIALS
+# JANGAN PERNAH COMMIT FILE INI!
+# ===========================
+.env
+**/.env
+.env.local
+**/.env.local
+.env.*.local
+**/.env.*.local
+
+# ===========================
+# BUILD OUTPUT
+# ===========================
+dist/
+**/dist/
+build/
+**/build/
+.output/
+.next/
+.nuxt/
+
+# ===========================
+# LOGS
+# ===========================
+*.log
+logs/
+**/logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ===========================
+# DOCKER FILES / DEPLOYMENT CONFIG
+# Abaikan kalau tidak mau Dockerfile & compose masuk GitHub
+# ===========================
+Dockerfile
+**/Dockerfile
+Dockerfile.*
+**/Dockerfile.*
+
+docker-compose.yml
+docker-compose.yaml
+docker-compose.*.yml
+docker-compose.*.yaml
+**/docker-compose.yml
+**/docker-compose.yaml
+**/docker-compose.*.yml
+**/docker-compose.*.yaml
+
+# ===========================
+# DOCKER / DATABASE DATA VOLUMES
+# ===========================
+mysql_data/
+postgres_data/
+db_data/
+data/
+
+# ===========================
+# DATABASE LOCAL FILES
+# ===========================
+*.sqlite
+*.sqlite3
+*.db
+
+# ===========================
+# OS & EDITOR ARTIFACTS
+# ===========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# ===========================
+# CREDENTIALS & SECRETS
+# ===========================
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+*.jks
+*.keystore
+secrets/
+credentials/
+private/# ===========================
+# DEPENDENCIES
+# ===========================
+node_modules/
+**/node_modules/
+
+# ===========================
+# ENVIRONMENT / CREDENTIALS
+# JANGAN PERNAH COMMIT FILE INI!
+# ===========================
+.env
+**/.env
+.env.local
+**/.env.local
+.env.*.local
+**/.env.*.local
+
+# ===========================
+# BUILD OUTPUT
+# ===========================
+dist/
+**/dist/
+build/
+**/build/
+.output/
+.next/
+.nuxt/
+
+# ===========================
+# LOGS
+# ===========================
+*.log
+logs/
+**/logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ===========================
+# DOCKER FILES / DEPLOYMENT CONFIG
+# Abaikan kalau tidak mau Dockerfile & compose masuk GitHub
+# ===========================
+Dockerfile
+**/Dockerfile
+Dockerfile.*
+**/Dockerfile.*
+
+docker-compose.yml
+docker-compose.yaml
+docker-compose.*.yml
+docker-compose.*.yaml
+**/docker-compose.yml
+**/docker-compose.yaml
+**/docker-compose.*.yml
+**/docker-compose.*.yaml
+
+# ===========================
+# DOCKER / DATABASE DATA VOLUMES
+# ===========================
+mysql_data/
+postgres_data/
+db_data/
+data/
+
+# ===========================
+# DATABASE LOCAL FILES
+# ===========================
+*.sqlite
+*.sqlite3
+*.db
+
+# ===========================
+# OS & EDITOR ARTIFACTS
+# ===========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# ===========================
+# CREDENTIALS & SECRETS
+# ===========================
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+*.jks
+*.keystore
+secrets/
+credentials/
+private/
